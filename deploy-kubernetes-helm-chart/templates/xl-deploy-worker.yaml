@@ -225,9 +225,14 @@ spec:
       spec:
         accessModes: [ "ReadWriteMany" ]
       {{- if .Values.Persistence.StorageClass }}
+<<<<<<< HEAD
         storageClassName: "{{ .Values.Persistence.StorageClass }}"
+=======
+>>>>>>> parent of 7b4b94b (Change fetching storageClassName)
       {{- if (eq "-" .Values.Persistence.StorageClass) }}
         storageClassName: ""
+      {{- else }}
+        storageClassName: "{{ .Values.Persistence.StorageClass }}"
       {{- end }}
       {{- end }}
         resources:
