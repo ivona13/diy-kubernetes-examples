@@ -102,7 +102,7 @@ postgresql:
     pullSecrets: []
   persistence:
     enabled: true
-    storageClass: "-"
+    storageClass: "standard"
     size: 8Gi
     existingClaim: ""
   postgresqlUsername: postgres
@@ -226,7 +226,7 @@ affinity: {}
 Persistence:
   Enabled: true
   ## Choose storage class provided by your cloud provider, example "ssd" on GKE, AWS and OpenStack
-  StorageClass: "-"
+  StorageClass: "standard"
   Annotations: {}
   AccessMode: ReadWriteOnce
   XldMasterPvcSize: 10Gi
