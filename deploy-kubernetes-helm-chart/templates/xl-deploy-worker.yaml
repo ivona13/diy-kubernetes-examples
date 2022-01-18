@@ -225,7 +225,7 @@ spec:
       spec:
         accessModes: [ "ReadWriteMany" ]
       {{- if .Values.Persistence.StorageClass }}
-          storageClassName: "{{ .Values.Persistence.StorageClass }}"
+        storageClassName: "{{ .Values.Persistence.StorageClass }}"
       {{- if (eq "-" .Values.Persistence.StorageClass) }}
         storageClassName: ""
       {{- end }}
