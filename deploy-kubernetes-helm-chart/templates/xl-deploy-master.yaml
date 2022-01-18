@@ -238,7 +238,6 @@ spec:
         storageClassName: "{{ .Values.Persistence.StorageClass }}"
       {{- end }}
       {{- end }}
-        volumeName: data-dir
         resources:
           requests:
             storage: {{ .Values.Persistence.XldMasterPvcSize | quote }}
