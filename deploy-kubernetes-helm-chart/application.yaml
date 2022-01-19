@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/xebialabs/gitops-sandbox.git'
+    repoURL: 'https://github.com/ivona13/diy-kubernetes-examples.git'
     path: deploy-kubernetes-helm-chart
     targetRevision: HEAD
     helm:
