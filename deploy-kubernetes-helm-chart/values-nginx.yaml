@@ -102,7 +102,7 @@ postgresql:
     pullSecrets: []
   persistence:
     enabled: true
-    storageClass: "-"
+    storageClass: "nfs-client"
     size: 8Gi
     existingClaim: ""
   postgresqlUsername: postgres
@@ -189,7 +189,7 @@ rabbitmq:
     load_definitions = /app/xld-load_definition.json 
   persistence:
     enabled: true
-    storageClass: "-"
+    storageClass: "nfs-client"
     size: 8Gi
   service:
     type: ClusterIP  
