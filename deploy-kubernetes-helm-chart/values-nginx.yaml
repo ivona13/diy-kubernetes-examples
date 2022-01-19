@@ -226,7 +226,7 @@ affinity: {}
 Persistence:
   Enabled: true
   ## Choose storage class provided by your cloud provider, example "ssd" on GKE, AWS and OpenStack
-  StorageClass: "-"
+  StorageClass: "nfs-client"
   Annotations: {}
   AccessMode: ReadWriteOnce
   XldMasterPvcSize: 10Gi
