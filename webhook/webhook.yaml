@@ -1,0 +1,222 @@
+apiVersion: v1
+data:
+  service.webhook.release-webhook: |
+    url: $XL_RELEASE_URL # set url
+    basicAuth:
+      username: admin # set username
+      password: admin # set password
+    subscriptions: |
+      - recipients
+        - release-webhook
+        triggers:
+        - on-created
+        - on-deleted
+        - on-deployed
+        - on-health-degraded
+        - on-sync-failed
+        - on-sync-running
+        - on-sync-status-unknown
+        - on-sync-succeeded
+
+  template.app-created: |
+    webhook:
+      release-webhook:
+        method: POST
+        headers:
+        - name: Content-Type
+          value: application/json
+        body: |
+          {"application" : "{{.app.metadata.name}}", "version" : "{{.app.metadata.labels.version}}"}
+
+  template.app-deleted: |
+    webhook:
+      release-webhook:
+        method: DELETE
+        headers:
+        - name: Content-Type
+          value: application/json
+        body: |
+          {"application" : "{{.app.metadata.name}}", "version" : "{{.app.metadata.labels.version}}"}
+
+  template.app-deployed: |
+    webhook:
+      release-webhook:
+        method: PUT
+        headers:
+        - name: Content-Type
+          value: application/json
+        body: |
+          {
+            "applicationName" : "{{.app.metadata.name}}",
+            "state" : {
+                        "destination" : "{{.app.spec.destination.server}}",
+                        "namespace" : "{{.app.metadata.namespace}}",
+                        "versionTag" : {
+                                         "label" : "{{.app.metadata.labels.version}}",
+                                         "state" : ""
+                                       }
+                      },
+            "deploymentStatus" : "DONE",
+            "user" : "admin",
+            "lastChangeTime" : "{{.app.status.operationState.finishedAt}}"
+          }
+
+  template.app-health-degraded: |
+    webhook:
+      release-webhook:
+        method: PUT
+        headers:
+        - name: Content-Type
+          value: application/json
+        body: |
+          {
+            "applicationName" : "{{.app.metadata.name}}",
+            "state" : {
+                        "destination" : "{{.app.spec.destination.server}}",
+                        "namespace" : "{{.app.metadata.namespace}}",
+                        "versionTag" : {
+                                         "label" : "{{.app.metadata.labels.version}}",
+                                         "state" : ""
+                                       }
+                      },
+            "deploymentStatus" : "HEALTH_DEGRADED",
+            "user" : "admin",
+            "lastChangeTime" : "{{.app.status.operationState.finishedAt}}"
+          }
+  template.app-sync-failed: |
+    webhook:
+      release-webhook:
+        method: PUT
+        headers:
+        - name: Content-Type
+          value: application/json
+        body: |
+          {
+            "applicationName" : "{{.app.metadata.name}}",
+            "state" : {
+                        "destination" : "{{.app.spec.destination.server}}",
+                        "namespace" : "{{.app.metadata.namespace}}",
+                        "versionTag" : {
+                                         "label" : "{{.app.metadata.labels.version}}",
+                                         "state" : ""
+                                       }
+                      },
+            "deploymentStatus" : "SYNC_FAILED",
+            "user" : "admin",
+            "lastChangeTime" : "{{.app.status.operationState.finishedAt}}"
+          }
+
+  template.app-sync-running: |
+    webhook:
+      release-webhook:
+        method: PUT
+        headers:
+        - name: Content-Type
+          value: application/json
+        body: |
+          {
+            "applicationName" : "{{.app.metadata.name}}",
+            "state" : {
+                        "destination" : "{{.app.spec.destination.server}}",
+                        "namespace" : "{{.app.metadata.namespace}}",
+                        "versionTag" : {
+                                         "label" : "{{.app.metadata.labels.version}}",
+                                         "state" : ""
+                                       }
+                      },
+            "deploymentStatus" : "SYNC_RUNNING",
+            "user" : "admin",
+            "lastChangeTime" : "{{.app.status.operationState.finishedAt}}"
+          }
+  template.app-sync-status-unknown: |
+    webhook:
+      release-webhook:
+        method: PUT
+        headers:
+        - name: Content-Type
+          value: application/json
+        body: |
+          {
+            "applicationName" : "{{.app.metadata.name}}",
+            "state" : {
+                        "destination" : "{{.app.spec.destination.server}}",
+                        "namespace" : "{{.app.metadata.namespace}}",
+                        "versionTag" : {
+                                         "label" : "{{.app.metadata.labels.version}}",
+                                         "state" : ""
+                                       }
+                      },
+            "deploymentStatus" : "SYNC_STATUS_UNKNOWN",
+            "user" : "admin",
+            "lastChangeTime" : "{{.app.status.operationState.finishedAt}}"
+          }
+  template.app-sync-succeeded: |
+    webhook:
+      release-webhook:
+        method: PUT
+        headers:
+        - name: Content-Type
+          value: application/json
+        body: |
+          {
+            "applicationName" : "{{.app.metadata.name}}",
+            "state" : {
+                        "destination" : "{{.app.spec.destination.server}}",
+                        "namespace" : "{{.app.metadata.namespace}}",
+                        "versionTag" : {
+                                         "label" : "{{.app.metadata.labels.version}}",
+                                         "state" : ""
+                                       }
+                      },
+            "deploymentStatus" : "SYNC_SUCCEEDED",
+            "user" : "admin",
+            "lastChangeTime" : "{{.app.status.operationState.finishedAt}}"
+          }
+  trigger.on-created: |
+    - description: Application is created.
+      oncePer: app.metadata.name
+      send:
+      - app-created
+      when: "true"
+  trigger.on-deleted: |
+    - description: Application is deleted.
+      oncePer: app.metadata.name
+      send:
+      - app-deleted
+      when: app.metadata.deletionTimestamp != nil
+  trigger.on-deployed: |
+    - description: Application is synced and healthy. Triggered once per commit.
+      oncePer: app.status.operationState.syncResult.revision
+      send:
+      - app-deployed
+      when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status
+        == 'Healthy'
+  trigger.on-health-degraded: |
+    - description: Application has degraded
+      send:
+      - app-health-degraded
+      when: app.status.health.status == 'Degraded'
+  trigger.on-sync-failed: |
+    - description: Application syncing has failed
+      send:
+      - app-sync-failed
+      when: app.status.operationState.phase in ['Error', 'Failed']
+  trigger.on-sync-running: |
+    - description: Application is being synced
+      send:
+      - app-sync-running
+      when: app.status.operationState.phase in ['Running']
+  trigger.on-sync-status-unknown: |
+    - description: Application status is 'Unknown'
+      send:
+      - app-sync-status-unknown
+      when: app.status.sync.status == 'Unknown'
+  trigger.on-sync-succeeded: |
+    - description: Application syncing has succeeded
+      send:
+      - app-sync-succeeded
+      when: app.status.operationState.phase in ['Succeeded']
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: argocd-notifications-cm
